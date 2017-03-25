@@ -2,17 +2,23 @@ package fi.hamk.riksu.silmlasit;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewOverlay;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import java.io.IOException;
@@ -64,6 +70,8 @@ public class FullscreenActivity extends AppCompatActivity {
     };
     private View mControlsView;
     private ImageView mImageView;
+    private Button mButton;
+    int index=0;
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
         public void run() {
@@ -107,6 +115,28 @@ public class FullscreenActivity extends AppCompatActivity {
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
         mImageView = (ImageView)findViewById(R.id.imageView);
+        mButton = (Button) findViewById(R.id.button);
+
+        final ViewOverlay overlay = mImageView.getOverlay();
+        final int width = mImageView.getWidth();
+        final int height = mImageView.getHeight();
+
+        final Drawable[] myImage = new Drawable[2];
+        myImage[0]= ContextCompat.getDrawable(this, R.drawable.glasses_simple);
+        myImage[1]= ContextCompat.getDrawable(this, R.drawable.glasses_simple2);
+        //overlay.add(myImage);
+
+
+        mImageView.post(new Runnable() {
+            @Override
+            public void run() {
+                //top right square
+                //myImage.setBounds(mImageView.getWidth() / 2, 0, mImageView.getWidth(), mImageView.getHeight() / 2);
+                myImage[index].setBounds(0, mImageView.getHeight() / 4, mImageView.getWidth(), 3*mImageView.getHeight() / 4);
+                overlay.add(myImage[index]);
+
+            }
+        });
 
 
         // Set up the user interaction to manually show or hide the system UI.
@@ -116,7 +146,24 @@ public class FullscreenActivity extends AppCompatActivity {
                 toggle();
             }
         });
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final int old_index=index;
+                index = (index+1)% myImage.length;
+                mImageView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        //top right square
+                        //myImage.setBounds(mImageView.getWidth() / 2, 0, mImageView.getWidth(), mImageView.getHeight() / 2);
+                        myImage[index].setBounds(0, mImageView.getHeight() / 4, mImageView.getWidth(), 3*mImageView.getHeight() / 4);
+                        overlay.remove(myImage[old_index]);
+                        overlay.add(myImage[index]);
+                    }
+                });
 
+            }
+        });
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
@@ -148,7 +195,10 @@ public class FullscreenActivity extends AppCompatActivity {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
                 // Log.d(TAG, String.valueOf(bitmap));
+                //mImageView.setRotation(-90);
                 mImageView.setImageBitmap(bitmap);
+
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
