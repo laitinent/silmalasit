@@ -58,7 +58,7 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="1300px"
+        android:layout_height="1300dp"
         android:adjustViewBounds="false"
         android:cropToPadding="false"
         android:scaleType="fitCenter"

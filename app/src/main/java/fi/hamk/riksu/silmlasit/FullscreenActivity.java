@@ -126,7 +126,6 @@ public class FullscreenActivity extends AppCompatActivity {
         myImage[1]= ContextCompat.getDrawable(this, R.drawable.glasses_simple2);
         //overlay.add(myImage);
 
-
         mImageView.post(new Runnable() {
             @Override
             public void run() {
@@ -134,10 +133,8 @@ public class FullscreenActivity extends AppCompatActivity {
                 //myImage.setBounds(mImageView.getWidth() / 2, 0, mImageView.getWidth(), mImageView.getHeight() / 2);
                 myImage[index].setBounds(0, mImageView.getHeight() / 4, mImageView.getWidth(), 3*mImageView.getHeight() / 4);
                 overlay.add(myImage[index]);
-
             }
         });
-
 
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(new View.OnClickListener() {
@@ -161,14 +158,12 @@ public class FullscreenActivity extends AppCompatActivity {
                         overlay.add(myImage[index]);
                     }
                 });
-
             }
         });
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
-
 
         // Start by picking an image
         Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -197,7 +192,6 @@ public class FullscreenActivity extends AppCompatActivity {
                 // Log.d(TAG, String.valueOf(bitmap));
                 //mImageView.setRotation(-90);
                 mImageView.setImageBitmap(bitmap);
-
 
             } catch (IOException e) {
                 e.printStackTrace();
