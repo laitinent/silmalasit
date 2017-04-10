@@ -84,25 +84,17 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     };
     private boolean mVisible;
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide();
-        }
-    };
+    private final Runnable mHideRunnable = () -> hide();
     /**
      * Touch listener to use for in-layout UI controls to delay hiding the
      * system UI. This is to prevent the jarring behavior of controls going away
      * while interacting with activity UI.
      */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
+    private final View.OnTouchListener mDelayHideTouchListener = (view, motionEvent) -> {
+        if (AUTO_HIDE) {
+            delayedHide(AUTO_HIDE_DELAY_MILLIS);
         }
+        return false;
     };
 
     @Override
@@ -126,39 +118,25 @@ public class FullscreenActivity extends AppCompatActivity {
         myImage[1]= ContextCompat.getDrawable(this, R.drawable.glasses_simple2);
         //overlay.add(myImage);
 
-        mImageView.post(new Runnable() {
-            @Override
-            public void run() {
-                //top right square
-                //myImage.setBounds(mImageView.getWidth() / 2, 0, mImageView.getWidth(), mImageView.getHeight() / 2);
-                myImage[index].setBounds(0, mImageView.getHeight() / 4, mImageView.getWidth(), 3*mImageView.getHeight() / 4);
-                overlay.add(myImage[index]);
-            }
+        mImageView.post(() -> {
+            //top right square
+            //myImage.setBounds(mImageView.getWidth() / 2, 0, mImageView.getWidth(), mImageView.getHeight() / 2);
+            myImage[index].setBounds(0, mImageView.getHeight() / 4, mImageView.getWidth(), 3*mImageView.getHeight() / 4);
+            overlay.add(myImage[index]);
         });
 
         // Set up the user interaction to manually show or hide the system UI.
-        mContentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggle();
-            }
-        });
-        mButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final int old_index=index;
-                index = (index+1)% myImage.length;
-                mImageView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        //top right square
-                        //myImage.setBounds(mImageView.getWidth() / 2, 0, mImageView.getWidth(), mImageView.getHeight() / 2);
-                        myImage[index].setBounds(0, mImageView.getHeight() / 4, mImageView.getWidth(), 3*mImageView.getHeight() / 4);
-                        overlay.remove(myImage[old_index]);
-                        overlay.add(myImage[index]);
-                    }
-                });
-            }
+        mContentView.setOnClickListener(view -> toggle());
+        mButton.setOnClickListener(view -> {
+            final int old_index=index;
+            index = (index+1)% myImage.length;
+            mImageView.post(() -> {
+                //top right square
+                //myImage.setBounds(mImageView.getWidth() / 2, 0, mImageView.getWidth(), mImageView.getHeight() / 2);
+                myImage[index].setBounds(0, mImageView.getHeight() / 4, mImageView.getWidth(), 3*mImageView.getHeight() / 4);
+                overlay.remove(myImage[old_index]);
+                overlay.add(myImage[index]);
+            });
         });
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
