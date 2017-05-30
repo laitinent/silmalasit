@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -24,6 +25,8 @@ import android.widget.ImageView;
 import java.io.IOException;
 import java.io.InputStream;
 
+import fi.hamk.riksu.silmlasit.databinding.ActivityFullscreenBinding;
+
 import static android.R.attr.bitmap;
 
 /**
@@ -31,6 +34,7 @@ import static android.R.attr.bitmap;
  * status bar and navigation/system bar) with user interaction.
  */
 public class FullscreenActivity extends AppCompatActivity {
+    ActivityFullscreenBinding binding;
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -69,8 +73,7 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     };
     private View mControlsView;
-    private ImageView mImageView;
-    private Button mButton;
+
     int index=0;
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
@@ -100,40 +103,38 @@ public class FullscreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_fullscreen);
         setContentView(R.layout.activity_fullscreen);
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
-        mImageView = (ImageView)findViewById(R.id.imageView);
-        mButton = (Button) findViewById(R.id.button);
 
-        final ViewOverlay overlay = mImageView.getOverlay();
-        final int width = mImageView.getWidth();
-        final int height = mImageView.getHeight();
+        final ViewOverlay overlay = binding.imageView.getOverlay();
+        final int width = binding.imageView.getWidth();
+        final int height = binding.imageView.getHeight();
 
         final Drawable[] myImage = new Drawable[2];
         myImage[0]= ContextCompat.getDrawable(this, R.drawable.glasses_simple);
         myImage[1]= ContextCompat.getDrawable(this, R.drawable.glasses_simple2);
         //overlay.add(myImage);
 
-        mImageView.post(() -> {
+        binding.imageView.post(() -> {
             //top right square
             //myImage.setBounds(mImageView.getWidth() / 2, 0, mImageView.getWidth(), mImageView.getHeight() / 2);
-            myImage[index].setBounds(0, mImageView.getHeight() / 4, mImageView.getWidth(), 3*mImageView.getHeight() / 4);
+            myImage[index].setBounds(0, height / 4, width, 3*height / 4);
             overlay.add(myImage[index]);
         });
 
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(view -> toggle());
-        mButton.setOnClickListener(view -> {
+        binding.button.setOnClickListener(view -> {
             final int old_index=index;
             index = (index+1)% myImage.length;
-            mImageView.post(() -> {
+            binding.imageView.post(() -> {
                 //top right square
                 //myImage.setBounds(mImageView.getWidth() / 2, 0, mImageView.getWidth(), mImageView.getHeight() / 2);
-                myImage[index].setBounds(0, mImageView.getHeight() / 4, mImageView.getWidth(), 3*mImageView.getHeight() / 4);
+                myImage[index].setBounds(0, height / 4, width, 3*height / 4);
                 overlay.remove(myImage[old_index]);
                 overlay.add(myImage[index]);
             });
@@ -141,7 +142,7 @@ public class FullscreenActivity extends AppCompatActivity {
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        binding.dummyButton.setOnTouchListener(mDelayHideTouchListener);
 
         // Start by picking an image
         Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -169,7 +170,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
                 // Log.d(TAG, String.valueOf(bitmap));
                 //mImageView.setRotation(-90);
-                mImageView.setImageBitmap(bitmap);
+                binding.imageView.setImageBitmap(bitmap);
 
             } catch (IOException e) {
                 e.printStackTrace();
